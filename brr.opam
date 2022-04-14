@@ -21,16 +21,14 @@ maintainer: "Daniel Bünzli <daniel.buenzl i@erratique.ch>"
 authors: "The brr programmers"
 license: ["ISC" "BSD-3-Clause"]
 tags: ["reactive" "declarative" "frp" "front-end" "browser" "org:erratique"]
-homepage: "https://erratique.ch/software/brr"
-doc: "https://erratique.ch/software/brr/doc/"
+homepage: "https://github.com/dune-universe/brr"
 bug-reports: "https://github.com/dbuenzli/brr/issues"
 depends: [
   "ocaml" {>= "4.08.0"}
-  "ocamlfind" {build}
-  "ocamlbuild" {build}
   "topkg" {build & >= "1.0.3"}
   "js_of_ocaml-compiler" {>= "5.5.0"}
   "js_of_ocaml-toplevel" {>= "5.5.0"}
+  "dune" {>= "2.8"}
 ]
-build: ["ocaml" "pkg/pkg.ml" "build" "--dev-pkg" "%{dev}%"]
-dev-repo: "git+https://erratique.ch/repos/brr.git"
+build: [ "dune" "build" "-p" name "-j" jobs "@install" "@runtest" {with-test} ]
+dev-repo: "git+https://github.com/dune-universe/brr.git"
