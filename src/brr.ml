@@ -2131,6 +2131,10 @@ module ResizeObserver = struct
 
   let create : (Entry.t list -> observer -> unit) -> observer =
     fun callback ->
+    let callback e o =
+      let e = Jv.to_list Entry.of_jv e in
+      callback e o
+    in
     let callback = Jv.callback ~arity:2 callback in
     let constructor = Jv.get Jv.global "ResizeObserver" in
     Jv.new' constructor [| callback |]
