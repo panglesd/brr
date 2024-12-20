@@ -321,6 +321,7 @@ module Ev = struct
   let install = Type.create (Jstr.v "install")
   let keydown = Type.create (Jstr.v "keydown")
   let keyup = Type.create (Jstr.v "keyup")
+  let keypress = Type.create (Jstr.v "keypress")
   let languagechange = Type.void (Jstr.v "languagechange")
   let load = Type.void (Jstr.v "load")
   let loadeddata = Type.void (Jstr.v "loadeddata")
