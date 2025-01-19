@@ -2335,7 +2335,11 @@ module El : sig
   (** [scroll_h e] is the minimum height the element would require
       to display without a vertical scrollbar. *)
 
-  val scroll_into_view : ?align_v:[ `Start | `End ] -> t -> unit
+  val scroll_into_view :
+    ?align_v:[ `Center | `End | `Nearest | `Start ] ->
+    ?behavior:[< `Auto | `Instant | `Smooth ] ->
+    t ->
+    unit
   (** [scroll_into_view ~align e]
       {{:https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView}scrolls} [e] into view. If [align_v] is [`Start] (default) the top of the
       element is align with to to the top of the scrollable area. If
