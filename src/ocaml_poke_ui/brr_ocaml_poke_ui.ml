@@ -26,10 +26,11 @@ module Store = struct
     { get; set }
 
   let webext ?(key_prefix = key_prefix) () =
+    ignore key_prefix;
     match Jv.find_path Jv.global ["chrome"; "storage"; "local"] with
     | None ->
         let err () = Jv.throw (Jstr.v "chrome.storage.local is undefined") in
-        let get k = err () and set k v = err () in
+        let get _k = err () and set _k _v = err () in
         create ~get ~set
     | Some s ->
         let get k =
@@ -41,7 +42,7 @@ module Store = struct
         let set k v =
           let fut, set_fut = Fut.create () in
           let o = Jv.obj' [| k, Jv.of_jstr v |] in
-          let result r = set_fut (Ok ()) in
+          let result _r = set_fut (Ok ()) in
           ignore @@ Jv.call s "set" [| o; Jv.repr result |];
           fut
         in
@@ -204,7 +205,7 @@ module Spinner = struct
     loop 1 (Fut.return ())
 
   let show s = match s.abort with
-  | Some a -> ()
+  | Some _a -> ()
   | None ->
       let abort = Abort.controller () in
       s.abort <- Some abort;
@@ -308,7 +309,7 @@ let history_keyboard_moves r key =
         Ev.Keyboard.ctrl_key k || match Text_input.cursor_pos r.input with
         | None -> false
         | Some cursor when cursor > first_line_end txt -> false
-        | Some cursor -> true
+        | Some _cursor -> true
       in
       if not do_prev then () else
       (Ev.prevent_default key; Text_input.set r.input (history_prev r txt))
@@ -317,7 +318,7 @@ let history_keyboard_moves r key =
         Ev.Keyboard.ctrl_key k || match Text_input.cursor_pos r.input with
         | None -> false
         | Some cursor when cursor < last_line_start txt -> false
-        | Some cursor -> true
+        | Some _cursor -> true
       in
       if not do_next then () else
       (Ev.prevent_default key; Text_input.set r.input (history_next r txt))
@@ -379,8 +380,8 @@ let use_ml_ui r poke =
   let i = El.input ~at:At.[type' (Jstr.v "file")] () in
   let b = El.button [ El.txt' "#use \"…\"" ] in
   El.set_inline_style El.Style.display (Jstr.v "none") i;
-  ignore (Ev.listen Ev.click (fun e -> El.click i) (El.as_target b));
-  ignore (Ev.listen Ev.change (fun e -> on_change i) (El.as_target i));
+  ignore (Ev.listen Ev.click (fun _e -> El.click i) (El.as_target b));
+  ignore (Ev.listen Ev.change (fun _e -> on_change i) (El.as_target i));
   El.span [i; b]
 
 let use_ml_on_file_drag_and_drop ?drop_target r poke =

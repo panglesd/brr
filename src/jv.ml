@@ -179,7 +179,7 @@ module Function = struct
     fun args ->
     match args with
     | [] -> []
-    | (s, conv) :: q -> of_string s :: args_to_list q
+    | (s, _conv) :: q -> of_string s :: args_to_list q
 
   let v : type a . args:(a args) -> body:Jstr.t -> a =
     fun ~args ~body ->
@@ -251,7 +251,7 @@ module Error = struct
 
   let message e = to_jstr (get (Obj.magic e) "message")
   let stack e = to_jstr (get (Obj.magic e) "stack")
-  let to_result e = Error e
+  let _to_result e = Error e
 end
 
 external of_error : Error.t -> t = "%identity"

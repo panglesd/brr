@@ -25,6 +25,7 @@ module Clipboard = struct
     let item = Jv.get Jv.global "ClipboardItem"
 
     let create ?opts vs =
+      ignore opts ;
       let o = Jv.obj [||] in
       let add_v (t, b) = Jv.set' o t (Blob.to_jv b) in
       List.iter add_v vs; Jv.new' item [|o|]
@@ -411,7 +412,7 @@ module Fetch = struct
         Fut.of_promise ~ok:Jv.to_bool @@ Jv.call s "delete" Jv.[| of_jstr n |]
 
       let keys s =
-        Fut.of_promise ~ok:Jv.to_jstr_list @@ Jv.call s "keys" Jv.[||]
+        Fut.of_promise ~ok:Jv.to_jstr_list @@ Jv.call s "keys" [||]
     end
   end
 
@@ -1169,12 +1170,13 @@ module Notification = struct
     let icon a = Jv.Jstr.find a "icon"
   end
 
-  type action = Jv.t
+  (* type action = Jv.t *)
   type opts = Jv.t
   let opts
       ?dir ?lang ?body ?tag ?image ?icon ?badge ?timestamp_ms
       ?renotify ?silent ?require_interaction ?data ?(actions = []) ()
     =
+    ignore tag ;
     let o = Jv.obj [||] in
     Jv.Jstr.set_if_some o "dir" dir;
     Jv.Jstr.set_if_some o "lang" lang;
@@ -1207,7 +1209,7 @@ module Notification = struct
   let tag n = Jv.Jstr.get n "tag"
   let icon n = Jv.Jstr.get n "icon"
   let image n = Jv.Jstr.get n "image"
-  let url n = Jv.Jstr.get n "url"
+  (* let url n = Jv.Jstr.get n "url" *)
   let renotify n = Jv.Bool.get n "renotify"
   let require_interaction n = Jv.Bool.get n "requireInteraction"
   let silent n = Jv.Bool.get n "silent"

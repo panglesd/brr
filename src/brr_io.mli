@@ -2329,6 +2329,7 @@ module Notification : sig
 
     val action : t -> Jstr.t
     (** [action a] is the {{:https://developer.mozilla.org/en-US/docs/Web/API/NotificationAction#Properties}action name} of [a]. *)
+
     val title : t -> Jstr.t
     (** [title a] is the {{:https://developer.mozilla.org/en-US/docs/Web/API/NotificationAction#Properties}title} of [a]. *)
 

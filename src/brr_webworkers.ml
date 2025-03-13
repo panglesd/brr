@@ -148,11 +148,11 @@ module Service_worker = struct
     let get_registration c uri =
       let uri = Jv.of_option ~none:Jv.undefined Jv.of_jstr uri in
       Fut.of_promise ~ok:(Jv.to_option Registration.of_jv) @@
-      Jv.call c "getRegistration" Jv.[| uri |]
+      Jv.call c "getRegistration" [| uri |]
 
     let get_registrations c =
       Fut.of_promise ~ok:(Jv.to_list Registration.of_jv) @@
-      Jv.call c "getRegistrations" Jv.[||]
+      Jv.call c "getRegistrations" [||]
 
     let start_messages c = ignore @@ Jv.call c "startMessages" [||]
   end

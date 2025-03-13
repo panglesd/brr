@@ -14,6 +14,7 @@ module Audio = struct
     end
     type descriptor = Jv.t
     let descriptor ?automation_rate ?min_value ?max_value ?default_value n =
+      ignore default_value ;
       let o = Jv.obj [||] in
       Jv.set o "name" (Jv.of_jstr n);
       Jv.Jstr.set_if_some o "automationRate" automation_rate;
@@ -161,11 +162,11 @@ module Audio = struct
     let disconnect_node ?output ?input n ~dst =
       let output = Jv.of_option ~none:Jv.undefined Jv.of_int output in
       let input = Jv.of_option ~none:Jv.undefined Jv.of_int input in
-      ignore @@ Jv.call n "disconnect" Jv.[| dst; output; input |]
+      ignore @@ Jv.call n "disconnect" [| dst; output; input |]
 
     let disconnect_param ?output n ~dst =
       let output = Jv.of_option ~none:Jv.undefined Jv.of_int output in
-      ignore @@ Jv.call n "disconnect" Jv.[| dst; output |]
+      ignore @@ Jv.call n "disconnect" [| dst; output |]
 
     (* Node types *)
 
@@ -821,7 +822,7 @@ module Audio = struct
 
       let decode_audio_data c b =
         Fut.of_promise ~ok:Buffer.of_jv @@
-        Jv.call c "decodeAudioData" Jv.[| Buffer.to_jv b |]
+        Jv.call c "decodeAudioData" [| Buffer.to_jv b |]
 
       (* Lets leave that out for now, node constructors allow to set params
          directly.

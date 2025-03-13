@@ -134,7 +134,7 @@ module Ev = struct
 
       let add_file t file =
         Jv.to_option Item.of_jv @@
-        Jv.call t "add" Jv.[| file |]
+        Jv.call t "add" [| file |]
 
       let remove l i = ignore (Jv.call l "remove" Jv.[|of_int i|])
       let clear l = ignore (Jv.call l "clear" [||])
@@ -240,7 +240,6 @@ module Ev = struct
     let data_transfer d = Jv.find_map Fun.id d "dataTransfer"
   end
   module Pointer = struct
-    type 'a event = 'a t
     type t = Jv.t
     external as_mouse : t -> Mouse.t = "%identity"
     let id p = Jv.Int.get p "pointerId"
@@ -670,7 +669,7 @@ module Tarray = struct
     let f acc v = f (of_jv v) acc in
     Obj.magic @@ Jv.call a "reduceRight" [|Jv.callback ~arity:2 f; Jv.repr acc|]
 
-  let reverse a = Jv.call a "reverse" Jv.[||]
+  let reverse a = Jv.call a "reverse" [||]
 
   (* Type aliases *)
 
@@ -815,7 +814,7 @@ module Blob = struct
     Jv.Jarray.set a 0 (Jv.of_jstr s);
     Jv.new' blob [| a; init |]
 
-  let of_jarray ?(init = Jv.undefined) a = Jv.new' blob [| a; init |]
+  let _of_jarray ?(init = Jv.undefined) a = Jv.new' blob [| a; init |]
   let of_array_buffer ?(init = Jv.undefined) b =
     Jv.new' blob [| Jv.of_jv_array [| Tarray.Buffer.to_jv b |]; init |]
 
@@ -1145,7 +1144,7 @@ module At = struct
   let class' s = v Name.class' s
   let cols i = int Name.cols i
   let content s = v Name.content s
-  let contenteditable s = true' Name.contenteditable
+  let contenteditable _s = true' Name.contenteditable
   let defer = true' Name.defer
   let dir s = v Name.dir s
   let disabled = true' Name.disabled
@@ -1243,8 +1242,8 @@ module El = struct
   let txt' ?(d = global_document) s =
     Jv.call d "createTextNode" [| Jv.of_string s |]
 
-  let sp ?(d = global_document) () = txt (Jstr.v " ")
-  let nbsp ?(d = global_document) () = txt (Jstr.v "\u{00A0}")
+  let sp ?(d = global_document) () = ignore d ; txt (Jstr.v " ")
+  let nbsp ?(d = global_document) () = ignore d ; txt (Jstr.v "\u{00A0}")
 
   let is_txt e = Jv.Int.get e "nodeType" = 3
   let is_el e = Jv.Int.get e "nodeType" = 1
@@ -1293,7 +1292,7 @@ module El = struct
   | false -> el_list_of_node_list (Jv.get e "childNodes")
 
   let set_children e l = delete_children e; List.iter (append_child e) l
-  let append_child e c = ignore @@ Jv.call e "appendChild" [| c |]
+  let _append_child e c = ignore @@ Jv.call e "appendChild" [| c |]
 
   let prepend_children e l = ignore @@ Jv.call e "prepend" (Array.of_list l)
   let append_children e l = ignore @@ Jv.call e "append" (Array.of_list l)
@@ -2102,7 +2101,7 @@ module Performance = struct
         Jv.[| of_jstr n; of_jstr t |]
 
   let mark p n = ignore @@ Jv.call p "mark" Jv.[| of_jstr n |]
-  let measure ?start ?stop p n = match start, stop with
+  let measure ?start ?stop p _n = match start, stop with
   | None, None -> ignore @@ Jv.call p "measure" [||]
   | Some s, None -> ignore @@ Jv.call p "measure" Jv.[| of_jstr s|]
   | Some s, Some e -> ignore @@ Jv.call p "measure" Jv.[| of_jstr s; of_jstr e|]

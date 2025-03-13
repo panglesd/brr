@@ -3,7 +3,7 @@
    SPDX-License-Identifier: ISC
   ---------------------------------------------------------------------------*)
 
-open Brr
+(* open Brr *)
 
 (* Poke objects
 
@@ -92,5 +92,5 @@ let find_eval'd ~eval:js_eval =
     let expr = Jstr.(v "ocaml_poke.use (" + ocaml + Jstr.v ")") in
     (js_eval expr)
   in
-  let* unit = js_eval (Jstr.v "ocaml_poke.init ()") in
+  let* _unit = js_eval (Jstr.v "ocaml_poke.init ()") in
   Fut.ok (Some { version; ocaml_version; jsoo_version; eval; use })

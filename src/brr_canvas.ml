@@ -111,11 +111,12 @@ module Canvas = struct
     in
     Jv.call c meth args
 
-  let to_data_url ?encode c = match enc c "toDataURL" None with
+  let to_data_url ?encode c = ignore encode ; match enc c "toDataURL" None with
   | exception Jv.Error e -> Error e
   | v -> Ok (Jv.to_jstr v)
 
   let to_blob ?encode c =
+    ignore encode;
     let fut, set = Fut.create () in
     let cb blob = set (Ok (Jv.to_option Blob.of_jv blob)) in
     match enc c "toBlob" (Some (Jv.callback ~arity:1 cb)) with
@@ -286,13 +287,13 @@ module C2d = struct
 
   type attrs = Jv.t
 
-  let attrs ?alpha ?color_space ?desynchronized ?will_read_frequently () =
-    let o = Jv.obj [||] in
-    Jv.Bool.set_if_some o "alpha" alpha;
-    Jv.Jstr.set_if_some o "colorSpace" color_space;
-    Jv.Bool.set_if_some o "desynchronized" desynchronized;
-    Jv.Bool.set_if_some o "willReadFrequently" will_read_frequently;
-    o
+  (* let attrs ?alpha ?color_space ?desynchronized ?will_read_frequently () = *)
+  (*   let o = Jv.obj [||] in *)
+  (*   Jv.Bool.set_if_some o "alpha" alpha; *)
+  (*   Jv.Jstr.set_if_some o "colorSpace" color_space; *)
+  (*   Jv.Bool.set_if_some o "desynchronized" desynchronized; *)
+  (*   Jv.Bool.set_if_some o "willReadFrequently" will_read_frequently; *)
+  (*   o *)
 
   let attrs_alpha o = Jv.Bool.get o "alpha"
   let attrs_color_space o =
@@ -615,8 +616,8 @@ module Gl = struct
     let antialias a = Jv.Bool.get a "antialias"
     let premultiplied_alpha a = Jv.Bool.get a "premultipliedApha"
     let preserve_drawing_buffer a = Jv.Bool.get a "preserveDrawingBuffer"
-    let fail_if_major_performance_caveat a =
-      Jv.Bool.get a "failIfMajorPerformanceCaveat"
+    (* let fail_if_major_performance_caveat a = *)
+    (*   Jv.Bool.get a "failIfMajorPerformanceCaveat" *)
     let power_preference a = Jv.Jstr.get a "powerPreference"
     let desynchronized a = Jv.Bool.get a "desynchronized"
   end
@@ -627,7 +628,7 @@ module Gl = struct
   let get_context ?(attrs = Jv.undefined) ?(v1 = false) cnv =
     let webgl = Jv.of_string (if v1 then "webgl" else "webgl2") in
     Jv.to_option Fun.id @@
-    Jv.call (Canvas.to_jv cnv) "getContext" Jv.[| webgl; attrs |]
+    Jv.call (Canvas.to_jv cnv) "getContext" [| webgl; attrs |]
 
   let create = get_context
 
@@ -688,7 +689,7 @@ module Gl = struct
     ignore @@ Jv.call c "activeTexture" Jv.[|of_int texture|]
 
   let attach_shader c program shader =
-    ignore @@ Jv.call c "attachShader" Jv.[|program; shader|]
+    ignore @@ Jv.call c "attachShader" [|program; shader|]
 
   let begin_query c target query =
     ignore @@ Jv.call c "beginQuery" Jv.[|of_int target; query|]
@@ -784,10 +785,10 @@ module Gl = struct
     Jv.to_int @@ Jv.call c "clientWaitSync" Jv.[|sync; of_int flags; of_int timeout|]
 
   let color_mask c red green blue alpha =
-    ignore @@ Jv.call c "colorMask" Jv.[|Jv.of_bool red; Jv.of_bool green; Jv.of_bool blue; Jv.of_bool alpha|]
+    ignore @@ Jv.call c "colorMask" [|Jv.of_bool red; Jv.of_bool green; Jv.of_bool blue; Jv.of_bool alpha|]
 
   let compile_shader c shader =
-    ignore @@ Jv.call c "compileShader" Jv.[|shader|]
+    ignore @@ Jv.call c "compileShader" [|shader|]
 
   let compressed_tex_image2d c target level internalformat width height border srcData =
     ignore @@ Jv.call c "compressedTexImage2D" Jv.[|of_int target; of_int level; of_int internalformat; of_int width; of_int height; of_int border; Tarray.to_jv srcData|]
@@ -826,82 +827,82 @@ module Gl = struct
     ignore @@ Jv.call c "copyTexSubImage3D" Jv.[|of_int target; of_int level; of_int xoffset; of_int yoffset; of_int zoffset; of_int x; of_int y; of_int width; of_int height|]
 
   let create_buffer c  =
-    Jv.call c "createBuffer" Jv.[||]
+    Jv.call c "createBuffer" [||]
 
   let create_framebuffer c  =
-    Jv.call c "createFramebuffer" Jv.[||]
+    Jv.call c "createFramebuffer" [||]
 
   let create_program c  =
-    Jv.call c "createProgram" Jv.[||]
+    Jv.call c "createProgram" [||]
 
   let create_query c  =
-    Jv.call c "createQuery" Jv.[||]
+    Jv.call c "createQuery" [||]
 
   let create_renderbuffer c  =
-    Jv.call c "createRenderbuffer" Jv.[||]
+    Jv.call c "createRenderbuffer" [||]
 
   let create_sampler c  =
-    Jv.call c "createSampler" Jv.[||]
+    Jv.call c "createSampler" [||]
 
   let create_shader c type' =
     Jv.call c "createShader" Jv.[|of_int type'|]
 
   let create_texture c  =
-    Jv.call c "createTexture" Jv.[||]
+    Jv.call c "createTexture" [||]
 
   let create_transform_feedback c  =
-    Jv.call c "createTransformFeedback" Jv.[||]
+    Jv.call c "createTransformFeedback" [||]
 
   let create_vertex_array c  =
-    Jv.call c "createVertexArray" Jv.[||]
+    Jv.call c "createVertexArray" [||]
 
   let cull_face c mode =
     ignore @@ Jv.call c "cullFace" Jv.[|of_int mode|]
 
   let delete_buffer c buffer =
-    ignore @@ Jv.call c "deleteBuffer" Jv.[|buffer|]
+    ignore @@ Jv.call c "deleteBuffer" [|buffer|]
 
   let delete_framebuffer c framebuffer =
-    ignore @@ Jv.call c "deleteFramebuffer" Jv.[|framebuffer|]
+    ignore @@ Jv.call c "deleteFramebuffer" [|framebuffer|]
 
   let delete_program c program =
-    ignore @@ Jv.call c "deleteProgram" Jv.[|program|]
+    ignore @@ Jv.call c "deleteProgram" [|program|]
 
   let delete_query c query =
-    ignore @@ Jv.call c "deleteQuery" Jv.[|query|]
+    ignore @@ Jv.call c "deleteQuery" [|query|]
 
   let delete_renderbuffer c renderbuffer =
-    ignore @@ Jv.call c "deleteRenderbuffer" Jv.[|renderbuffer|]
+    ignore @@ Jv.call c "deleteRenderbuffer" [|renderbuffer|]
 
   let delete_sampler c sampler =
-    ignore @@ Jv.call c "deleteSampler" Jv.[|sampler|]
+    ignore @@ Jv.call c "deleteSampler" [|sampler|]
 
   let delete_shader c shader =
-    ignore @@ Jv.call c "deleteShader" Jv.[|shader|]
+    ignore @@ Jv.call c "deleteShader" [|shader|]
 
   let delete_sync c sync =
-    ignore @@ Jv.call c "deleteSync" Jv.[|sync|]
+    ignore @@ Jv.call c "deleteSync" [|sync|]
 
   let delete_texture c texture =
-    ignore @@ Jv.call c "deleteTexture" Jv.[|texture|]
+    ignore @@ Jv.call c "deleteTexture" [|texture|]
 
   let delete_transform_feedback c tf =
-    ignore @@ Jv.call c "deleteTransformFeedback" Jv.[|tf|]
+    ignore @@ Jv.call c "deleteTransformFeedback" [|tf|]
 
   let delete_vertex_array c vertexArray =
-    ignore @@ Jv.call c "deleteVertexArray" Jv.[|vertexArray|]
+    ignore @@ Jv.call c "deleteVertexArray" [|vertexArray|]
 
   let depth_func c func =
     ignore @@ Jv.call c "depthFunc" Jv.[|of_int func|]
 
   let depth_mask c flag =
-    ignore @@ Jv.call c "depthMask" Jv.[|Jv.of_bool flag|]
+    ignore @@ Jv.call c "depthMask" [|Jv.of_bool flag|]
 
-  let depth_range c zNear zFar =
-    ignore @@ Jv.call c "depthRange" Jv.[|of_float zNear; of_float zFar|]
+  (* let depth_range c zNear zFar = *)
+  (*   ignore @@ Jv.call c "depthRange" Jv.[|of_float zNear; of_float zFar|] *)
 
   let detach_shader c program shader =
-    ignore @@ Jv.call c "detachShader" Jv.[|program; shader|]
+    ignore @@ Jv.call c "detachShader" [|program; shader|]
 
   let disable c cap =
     ignore @@ Jv.call c "disable" Jv.[|of_int cap|]
@@ -937,16 +938,16 @@ module Gl = struct
     ignore @@ Jv.call c "endQuery" Jv.[|of_int target|]
 
   let end_transform_feedback c  =
-    ignore @@ Jv.call c "endTransformFeedback" Jv.[||]
+    ignore @@ Jv.call c "endTransformFeedback" [||]
 
   let fence_sync c condition flags =
     Jv.call c "fenceSync" Jv.[|of_int condition; of_int flags|]
 
   let finish c  =
-    ignore @@ Jv.call c "finish" Jv.[||]
+    ignore @@ Jv.call c "finish" [||]
 
   let flush c  =
-    ignore @@ Jv.call c "flush" Jv.[||]
+    ignore @@ Jv.call c "flush" [||]
 
   let framebuffer_renderbuffer c target attachment renderbuffertarget renderbuffer =
     ignore @@ Jv.call c "framebufferRenderbuffer" Jv.[|of_int target; of_int attachment; of_int renderbuffertarget; renderbuffer|]
@@ -979,7 +980,7 @@ module Gl = struct
     Jv.call c "getActiveUniforms" Jv.[|program; of_list of_int uniformIndices; of_int pname|]
 
   let get_attached_shaders c program =
-    Jv.to_jv_list @@ Jv.call c "getAttachedShaders" Jv.[|program|]
+    Jv.to_jv_list @@ Jv.call c "getAttachedShaders" [|program|]
 
   let get_attrib_location c program name =
     Jv.to_int @@ Jv.call c "getAttribLocation" Jv.[|program; of_jstr name|]
@@ -991,7 +992,7 @@ module Gl = struct
     ignore @@ Jv.call c "getBufferSubData" Jv.[|of_int target; of_int srcByteOffset; Tarray.to_jv dstBuffer|]
 
   let get_error c  =
-    Jv.to_int @@ Jv.call c "getError" Jv.[||]
+    Jv.to_int @@ Jv.call c "getError" [||]
 
   let get_frag_data_location c program name =
     Jv.to_int @@ Jv.call c "getFragDataLocation" Jv.[|program; of_jstr name|]
@@ -1009,7 +1010,7 @@ module Gl = struct
     Jv.call c "getParameter" Jv.[|of_int pname|]
 
   let get_program_info_log c program =
-    Jv.to_jstr @@ Jv.call c "getProgramInfoLog" Jv.[|program|]
+    Jv.to_jstr @@ Jv.call c "getProgramInfoLog" [|program|]
 
   let get_program_parameter c program pname =
     Jv.call c "getProgramParameter" Jv.[|program; of_int pname|]
@@ -1027,7 +1028,7 @@ module Gl = struct
     Jv.call c "getSamplerParameter" Jv.[|sampler; of_int pname|]
 
   let get_shader_info_log c shader =
-    Jv.to_jstr @@ Jv.call c "getShaderInfoLog" Jv.[|shader|]
+    Jv.to_jstr @@ Jv.call c "getShaderInfoLog" [|shader|]
 
   let get_shader_parameter c shader pname =
     Jv.call c "getShaderParameter" Jv.[|shader; of_int pname|]
@@ -1036,7 +1037,7 @@ module Gl = struct
     Jv.call c "getShaderPrecisionFormat" Jv.[|of_int shadertype; of_int precisiontype|]
 
   let get_shader_source c shader =
-    Jv.to_jstr @@ Jv.call c "getShaderSource" Jv.[|shader|]
+    Jv.to_jstr @@ Jv.call c "getShaderSource" [|shader|]
 
   let get_sync_parameter c sync pname =
     Jv.call c "getSyncParameter" Jv.[|sync; of_int pname|]
@@ -1048,7 +1049,7 @@ module Gl = struct
     Jv.call c "getTransformFeedbackVarying" Jv.[|program; of_int index|]
 
   let get_uniform c program location =
-    Jv.call c "getUniform" Jv.[|program; location|]
+    Jv.call c "getUniform" [|program; location|]
 
   let get_uniform_block_index c program uniformBlockName =
     Jv.to_int @@ Jv.call c "getUniformBlockIndex" Jv.[|program; of_jstr uniformBlockName|]
@@ -1075,46 +1076,46 @@ module Gl = struct
     ignore @@ Jv.call c "invalidateSubFramebuffer" Jv.[|of_int target; of_list of_int attachments; of_int x; of_int y; of_int width; of_int height|]
 
   let is_buffer c buffer =
-    Jv.to_bool @@ Jv.call c "isBuffer" Jv.[|buffer|]
+    Jv.to_bool @@ Jv.call c "isBuffer" [|buffer|]
 
   let is_enabled c cap =
     Jv.to_bool @@ Jv.call c "isEnabled" Jv.[|of_int cap|]
 
   let is_framebuffer c framebuffer =
-    Jv.to_bool @@ Jv.call c "isFramebuffer" Jv.[|framebuffer|]
+    Jv.to_bool @@ Jv.call c "isFramebuffer" [|framebuffer|]
 
   let is_program c program =
-    Jv.to_bool @@ Jv.call c "isProgram" Jv.[|program|]
+    Jv.to_bool @@ Jv.call c "isProgram" [|program|]
 
   let is_query c query =
-    Jv.to_bool @@ Jv.call c "isQuery" Jv.[|query|]
+    Jv.to_bool @@ Jv.call c "isQuery" [|query|]
 
   let is_renderbuffer c renderbuffer =
-    Jv.to_bool @@ Jv.call c "isRenderbuffer" Jv.[|renderbuffer|]
+    Jv.to_bool @@ Jv.call c "isRenderbuffer" [|renderbuffer|]
 
   let is_sampler c sampler =
-    Jv.to_bool @@ Jv.call c "isSampler" Jv.[|sampler|]
+    Jv.to_bool @@ Jv.call c "isSampler" [|sampler|]
 
   let is_shader c shader =
-    Jv.to_bool @@ Jv.call c "isShader" Jv.[|shader|]
+    Jv.to_bool @@ Jv.call c "isShader" [|shader|]
 
   let is_texture c texture =
-    Jv.to_bool @@ Jv.call c "isTexture" Jv.[|texture|]
+    Jv.to_bool @@ Jv.call c "isTexture" [|texture|]
 
   let is_transform_feedback c tf =
-    Jv.to_bool @@ Jv.call c "isTransformFeedback" Jv.[|tf|]
+    Jv.to_bool @@ Jv.call c "isTransformFeedback" [|tf|]
 
   let is_vertex_array c vertexArray =
-    Jv.to_bool @@ Jv.call c "isVertexArray" Jv.[|vertexArray|]
+    Jv.to_bool @@ Jv.call c "isVertexArray" [|vertexArray|]
 
   let line_width c width =
     ignore @@ Jv.call c "lineWidth" Jv.[|of_float width|]
 
   let link_program c program =
-    ignore @@ Jv.call c "linkProgram" Jv.[|program|]
+    ignore @@ Jv.call c "linkProgram" [|program|]
 
   let pause_transform_feedback c  =
-    ignore @@ Jv.call c "pauseTransformFeedback" Jv.[||]
+    ignore @@ Jv.call c "pauseTransformFeedback" [||]
 
   let pixel_storei c pname param =
     ignore @@ Jv.call c "pixelStorei" Jv.[|of_int pname; of_int param|]
@@ -1138,7 +1139,7 @@ module Gl = struct
     ignore @@ Jv.call c "renderbufferStorageMultisample" Jv.[|of_int target; of_int samples; of_int internalformat; of_int width; of_int height|]
 
   let resume_transform_feedback c  =
-    ignore @@ Jv.call c "resumeTransformFeedback" Jv.[||]
+    ignore @@ Jv.call c "resumeTransformFeedback" [||]
 
   let sample_coverage c value invert =
     ignore @@ Jv.call c "sampleCoverage" Jv.[|of_float value; Jv.of_bool invert|]
@@ -1228,109 +1229,109 @@ module Gl = struct
     ignore @@ Jv.call c "uniform1f" Jv.[|location; of_float x|]
 
   let uniform1fv c location data =
-    ignore @@ Jv.call c "uniform1fv" Jv.[|location; Tarray.to_jv data|]
+    ignore @@ Jv.call c "uniform1fv" [|location; Tarray.to_jv data|]
 
   let uniform1i c location x =
     ignore @@ Jv.call c "uniform1i" Jv.[|location; of_int x|]
 
   let uniform1iv c location data =
-    ignore @@ Jv.call c "uniform1iv" Jv.[|location; Tarray.to_jv data|]
+    ignore @@ Jv.call c "uniform1iv" [|location; Tarray.to_jv data|]
 
   let uniform1ui c location v0 =
     ignore @@ Jv.call c "uniform1ui" Jv.[|location; of_int v0|]
 
   let uniform1uiv c location data =
-    ignore @@ Jv.call c "uniform1uiv" Jv.[|location; Tarray.to_jv data|]
+    ignore @@ Jv.call c "uniform1uiv" [|location; Tarray.to_jv data|]
 
   let uniform2f c location x y =
     ignore @@ Jv.call c "uniform2f" Jv.[|location; of_float x; of_float y|]
 
   let uniform2fv c location data =
-    ignore @@ Jv.call c "uniform2fv" Jv.[|location; Tarray.to_jv data|]
+    ignore @@ Jv.call c "uniform2fv" [|location; Tarray.to_jv data|]
 
   let uniform2i c location x y =
     ignore @@ Jv.call c "uniform2i" Jv.[|location; of_int x; of_int y|]
 
   let uniform2iv c location data =
-    ignore @@ Jv.call c "uniform2iv" Jv.[|location; Tarray.to_jv data|]
+    ignore @@ Jv.call c "uniform2iv" [|location; Tarray.to_jv data|]
 
   let uniform2ui c location v0 v1 =
     ignore @@ Jv.call c "uniform2ui" Jv.[|location; of_int v0; of_int v1|]
 
   let uniform2uiv c location data =
-    ignore @@ Jv.call c "uniform2uiv" Jv.[|location; Tarray.to_jv data|]
+    ignore @@ Jv.call c "uniform2uiv" [|location; Tarray.to_jv data|]
 
   let uniform3f c location x y z =
     ignore @@ Jv.call c "uniform3f" Jv.[|location; of_float x; of_float y; of_float z|]
 
   let uniform3fv c location data =
-    ignore @@ Jv.call c "uniform3fv" Jv.[|location; Tarray.to_jv data|]
+    ignore @@ Jv.call c "uniform3fv" [|location; Tarray.to_jv data|]
 
   let uniform3i c location x y z =
     ignore @@ Jv.call c "uniform3i" Jv.[|location; of_int x; of_int y; of_int z|]
 
   let uniform3iv c location data =
-    ignore @@ Jv.call c "uniform3iv" Jv.[|location; Tarray.to_jv data|]
+    ignore @@ Jv.call c "uniform3iv" [|location; Tarray.to_jv data|]
 
   let uniform3ui c location v0 v1 v2 =
     ignore @@ Jv.call c "uniform3ui" Jv.[|location; of_int v0; of_int v1; of_int v2|]
 
   let uniform3uiv c location data =
-    ignore @@ Jv.call c "uniform3uiv" Jv.[|location; Tarray.to_jv data|]
+    ignore @@ Jv.call c "uniform3uiv" [|location; Tarray.to_jv data|]
 
   let uniform4f c location x y z w =
     ignore @@ Jv.call c "uniform4f" Jv.[|location; of_float x; of_float y; of_float z; of_float w|]
 
   let uniform4fv c location data =
-    ignore @@ Jv.call c "uniform4fv" Jv.[|location; Tarray.to_jv data|]
+    ignore @@ Jv.call c "uniform4fv" [|location; Tarray.to_jv data|]
 
   let uniform4i c location x y z w =
     ignore @@ Jv.call c "uniform4i" Jv.[|location; of_int x; of_int y; of_int z; of_int w|]
 
   let uniform4iv c location data =
-    ignore @@ Jv.call c "uniform4iv" Jv.[|location; Tarray.to_jv data|]
+    ignore @@ Jv.call c "uniform4iv" [|location; Tarray.to_jv data|]
 
   let uniform4ui c location v0 v1 v2 v3 =
     ignore @@ Jv.call c "uniform4ui" Jv.[|location; of_int v0; of_int v1; of_int v2; of_int v3|]
 
   let uniform4uiv c location data =
-    ignore @@ Jv.call c "uniform4uiv" Jv.[|location; Tarray.to_jv data|]
+    ignore @@ Jv.call c "uniform4uiv" [|location; Tarray.to_jv data|]
 
   let uniform_block_binding c program uniformBlockIndex uniformBlockBinding =
     ignore @@ Jv.call c "uniformBlockBinding" Jv.[|program; of_int uniformBlockIndex; of_int uniformBlockBinding|]
 
   let uniform_matrix2fv c location transpose data =
-    ignore @@ Jv.call c "uniformMatrix2fv" Jv.[|location; Jv.of_bool transpose; Tarray.to_jv data|]
+    ignore @@ Jv.call c "uniformMatrix2fv" [|location; Jv.of_bool transpose; Tarray.to_jv data|]
 
   let uniform_matrix2x3fv c location transpose data =
-    ignore @@ Jv.call c "uniformMatrix2x3fv" Jv.[|location; Jv.of_bool transpose; Tarray.to_jv data|]
+    ignore @@ Jv.call c "uniformMatrix2x3fv" [|location; Jv.of_bool transpose; Tarray.to_jv data|]
 
   let uniform_matrix2x4fv c location transpose data =
-    ignore @@ Jv.call c "uniformMatrix2x4fv" Jv.[|location; Jv.of_bool transpose; Tarray.to_jv data|]
+    ignore @@ Jv.call c "uniformMatrix2x4fv" [|location; Jv.of_bool transpose; Tarray.to_jv data|]
 
   let uniform_matrix3fv c location transpose data =
-    ignore @@ Jv.call c "uniformMatrix3fv" Jv.[|location; Jv.of_bool transpose; Tarray.to_jv data|]
+    ignore @@ Jv.call c "uniformMatrix3fv" [|location; Jv.of_bool transpose; Tarray.to_jv data|]
 
   let uniform_matrix3x2fv c location transpose data =
-    ignore @@ Jv.call c "uniformMatrix3x2fv" Jv.[|location; Jv.of_bool transpose; Tarray.to_jv data|]
+    ignore @@ Jv.call c "uniformMatrix3x2fv" [|location; Jv.of_bool transpose; Tarray.to_jv data|]
 
   let uniform_matrix3x4fv c location transpose data =
-    ignore @@ Jv.call c "uniformMatrix3x4fv" Jv.[|location; Jv.of_bool transpose; Tarray.to_jv data|]
+    ignore @@ Jv.call c "uniformMatrix3x4fv" [|location; Jv.of_bool transpose; Tarray.to_jv data|]
 
   let uniform_matrix4fv c location transpose data =
-    ignore @@ Jv.call c "uniformMatrix4fv" Jv.[|location; Jv.of_bool transpose; Tarray.to_jv data|]
+    ignore @@ Jv.call c "uniformMatrix4fv" [|location; Jv.of_bool transpose; Tarray.to_jv data|]
 
   let uniform_matrix4x2fv c location transpose data =
-    ignore @@ Jv.call c "uniformMatrix4x2fv" Jv.[|location; Jv.of_bool transpose; Tarray.to_jv data|]
+    ignore @@ Jv.call c "uniformMatrix4x2fv" [|location; Jv.of_bool transpose; Tarray.to_jv data|]
 
   let uniform_matrix4x3fv c location transpose data =
-    ignore @@ Jv.call c "uniformMatrix4x3fv" Jv.[|location; Jv.of_bool transpose; Tarray.to_jv data|]
+    ignore @@ Jv.call c "uniformMatrix4x3fv" [|location; Jv.of_bool transpose; Tarray.to_jv data|]
 
   let use_program c program =
-    ignore @@ Jv.call c "useProgram" Jv.[|program|]
+    ignore @@ Jv.call c "useProgram" [|program|]
 
   let validate_program c program =
-    ignore @@ Jv.call c "validateProgram" Jv.[|program|]
+    ignore @@ Jv.call c "validateProgram" [|program|]
 
   let vertex_attrib1f c index x =
     ignore @@ Jv.call c "vertexAttrib1f" Jv.[|of_int index; of_float x|]
