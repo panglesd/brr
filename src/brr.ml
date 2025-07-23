@@ -1247,6 +1247,7 @@ module El = struct
 
   let is_txt e = Jv.Int.get e "nodeType" = 3
   let is_el e = Jv.Int.get e "nodeType" = 1
+  let is_content_editable e = Jv.Bool.get e "isContentEditable"
   let tag_name e = Jstr.lowercased @@ Jv.Jstr.get e "nodeName"
   let has_tag_name n e = Jstr.equal n (tag_name e)
   let txt_text txt = match is_txt txt with

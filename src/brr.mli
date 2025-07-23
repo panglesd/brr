@@ -2092,6 +2092,11 @@ module El : sig
   val is_el : t -> bool
   (** [is_el e] is [true] iff [e] is an element node. *)
 
+  val is_content_editable : t -> bool
+  (** [is_content_editable e] is [true] iff the content of [e] is editable (see
+      {{:https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/isContentEditable}the
+      relevant doc}). *)
+
   val tag_name : t -> tag_name
   (** [name e] is the tag name of element [e] lowercased. For {!is_txt}
       nodes this returns ["#text"]. *)
