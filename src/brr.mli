@@ -2396,6 +2396,21 @@ module El : sig
       document for the next {!Ev.pointerlockchange} and
       {!Ev.pointerlockerror} to resolve the future appropriately. *)
 
+  (** {1:shadowroot Shadow root} *)
+
+  module Shadow_root : sig
+    type t
+
+    val active_element : t -> el option
+
+    (**/**)
+    include Jv.CONV with type t := t
+    (**/**)
+
+  end
+
+  val shadow_root : t -> Shadow_root.t option
+
   (** {1:fullscreen Fullscreen} *)
 
   (** Fullscreen navigation enum. *)

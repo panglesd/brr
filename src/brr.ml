@@ -1484,6 +1484,18 @@ module El = struct
   let click e = ignore (Jv.call e "click" [||])
   let select_text e = ignore (Jv.call e "select" [||])
 
+  (* Shadow root *)
+
+  module Shadow_root = struct
+    type t = Jv.t
+
+    let active_element v = Jv.get v "activeElement" |> Jv.to_option of_jv
+
+    include (Jv.Id : Jv.CONV with type t := t)
+  end
+
+  let shadow_root e = Jv.get e "shadowRoot" |> Jv.to_option Shadow_root.of_jv
+
   (* Fullscreen *)
 
   module Navigation_ui = struct
