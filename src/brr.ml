@@ -1923,6 +1923,8 @@ module Window = struct
   let inner_width w = Jv.Int.get w "innerWidth"
   let inner_height w = Jv.Int.get w "innerHeight"
 
+  let document w = Jv.get w "document"
+
   let parent w =
     let p = Jv.get w "parent" in
     if p == w then None else Some p

@@ -3406,6 +3406,11 @@ module Window : sig
       height} of the window in pixels, including the height of the horizontal
       scroll bar, if present. *)
 
+  val document : t -> Document.t
+  (** [document w] is the
+      {{:https://developer.mozilla.org/en-US/docs/Web/API/Window/document}document
+      of the window}. *)
+
   val parent : t -> t option
   (** [parent w] is the
       {{:https://developer.mozilla.org/en-US/docs/Web/API/Window/parent}parent}
