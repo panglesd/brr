@@ -1755,6 +1755,8 @@ module Document = struct
 
   let as_target d = d
 
+  let element d = Jv.get d "documentElement"
+
   (* Elements *)
 
   let root d = El.of_jv (Jv.get d "documentElement")
