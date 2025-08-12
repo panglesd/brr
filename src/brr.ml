@@ -1927,6 +1927,8 @@ module Window = struct
     let p = Jv.get w "parent" in
     if p == w then None else Some p
 
+  let name w = Jv.Jstr.get w "name"
+
   let post_message w ~msg =
     ignore @@ Jv.call w "postMessage" [| msg |]
 

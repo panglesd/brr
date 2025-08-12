@@ -3414,6 +3414,11 @@ module Window : sig
       When a window is loaded in an [<iframe>], [<object>], or [<frame>], its
       parent is the window with the element embedding the window. *)
 
+  val name : t -> Jstr.t
+  (** [named w] is the
+      {{:https://developer.mozilla.org/en-US/docs/Web/API/Window/name}
+      name} of [w]. *)
+
   val post_message : t -> msg:Jv.t -> unit
   (** [post_message w ~msg]
       {{:https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage}dispatches}
