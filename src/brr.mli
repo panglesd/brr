@@ -3426,7 +3426,12 @@ module Window : sig
       parent is the window with the element embedding the window. *)
 
   val name : t -> Jstr.t
-  (** [named w] is the
+  (** [name w] is the
+      {{:https://developer.mozilla.org/en-US/docs/Web/API/Window/name}
+      name} of [w]. *)
+
+  val set_name : Jstr.t -> t -> unit
+  (** [set_name w] sets the
       {{:https://developer.mozilla.org/en-US/docs/Web/API/Window/name}
       name} of [w]. *)
 

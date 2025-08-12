@@ -1933,6 +1933,8 @@ module Window = struct
 
   let name w = Jv.Jstr.get w "name"
 
+  let set_name name w = Jv.Jstr.set w "name" name
+
   let post_message w ~msg =
     ignore @@ Jv.call w "postMessage" [| msg |]
 
