@@ -2184,7 +2184,7 @@ module El : sig
   val at : At.name -> t -> Jstr.t option
   (** [at a e] is the attribute [a] of [e] (if any). *)
 
-  val set_at : At.name -> Jstr.t option -> t -> unit
+  val set_at : ?ns:[`HTML | `SVG | `MathML] -> At.name -> Jstr.t option -> t -> unit
   (** [set_at a v e] sets the attribute [a] of [e] to [v]. If [v]
       is [None] the attribute is removed. If [a] is empty, this has not
       effect. *)
@@ -3645,6 +3645,8 @@ module Navigator : sig
       {{:https://developer.mozilla.org/en-US/docs/Web/API/NavigatorOnLine/onLine} online status} of the browser. See the docs, the semantics is
       browser dependent. *)
 
+  val user_agent : t -> Jstr.t
+
   (**/**)
   include Jv.CONV with type t := t
   (**/**)
@@ -3952,5 +3954,38 @@ module ResizeObserver : sig
 
   (**/**)
   include Jv.CONV with type t := observer
+  (**/**)
+end
+
+module DOMMatrix : sig
+  type t
+  val of_jstr : Jstr.t -> t
+  val a : t -> float
+  val b : t -> float
+  val c : t -> float
+  val d : t -> float
+  val e : t -> float
+  val f : t -> float
+  val is_2d : t -> bool
+  val is_identity : t -> bool
+  val m11 : t -> float
+  val m12 : t -> float
+  val m13 : t -> float
+  val m14 : t -> float
+  val m21 : t -> float
+  val m22 : t -> float
+  val m23 : t -> float
+  val m24 : t -> float
+  val m31 : t -> float
+  val m32 : t -> float
+  val m33 : t -> float
+  val m34 : t -> float
+  val m41 : t -> float
+  val m42 : t -> float
+  val m43 : t -> float
+  val m44 : t -> float
+
+  (**/**)
+  include Jv.CONV with type t := t
   (**/**)
 end

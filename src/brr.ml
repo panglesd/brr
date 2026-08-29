@@ -1198,40 +1198,43 @@ module El = struct
 
   let append_child e n = ignore (Jv.call e "appendChild" [| n |])
 
-  let rec set_atts e ss clss = function
+  let string_of_ns ns =
+    match ns with
+    | `HTML -> "http://www.w3.org/1999/xhtml"
+    | `SVG -> "http://www.w3.org/2000/svg"
+    | `MathML -> "http://www.w3.org/1998/Math/MathML"
+
+  let or_ns ?ns e c a =
+    match ns with
+    | None -> Jv.call e c a
+    | Some ns ->
+        let ns = string_of_ns ns in
+        Jv.call e (c ^ "NS") (Array.append [|Jv.of_string ns|] a)
+
+  let rec set_atts ?ns e ss clss = function
   | (a, v) :: at ->
       if Jstr.is_empty a then set_atts e ss clss at else
       if Jstr.equal a At.Name.style then set_atts e (v :: ss) clss at else
       if Jstr.equal a At.Name.class' then
         set_atts e ss (if Jstr.is_empty v then clss else v :: clss) at
       else begin
-        ignore (Jv.call e "setAttribute" Jv.[|of_jstr a; of_jstr v|]);
+        ignore (or_ns ?ns e "setAttribute" Jv.[|of_jstr a; of_jstr v|]);
         set_atts e ss clss at
       end
   | [] ->
       if ss <> [] then begin
         let a = At.Name.style in
         let v = Jstr.concat ~sep:(Jstr.v ";") (List.rev ss) in
-        ignore (Jv.call e "setAttribute" Jv.[|of_jstr a; of_jstr v|]);
+        ignore (or_ns ?ns e "setAttribute" Jv.[|of_jstr a; of_jstr v|]);
       end;
       if clss <> [] then begin
         let a = At.Name.class' in
         let v = Jstr.concat ~sep:(Jstr.v " ") (List.rev clss) in
-        ignore (Jv.call e "setAttribute" Jv.[|of_jstr a; of_jstr v|])
+        ignore (or_ns ?ns e "setAttribute" Jv.[|of_jstr a; of_jstr v|])
       end
 
   let v ?ns ?(d = global_document) ?(at = []) name cs =
-    let e =
-      match ns with
-      | None -> Jv.call d "createElement" [| Jv.of_jstr name |]
-      | Some ns ->
-         let ns = match ns with
-           | `HTML -> "http://www.w3.org/1999/xhtml"
-           | `SVG -> "http://www.w3.org/2000/svg"
-           | `MathML -> "http://www.w3.org/1998/Math/MathML"
-         in
-         Jv.call d "createElementNS" [| Jv.of_string ns ; Jv.of_jstr name |]
-    in
+    let e = or_ns ?ns d "createElement" [| Jv.of_jstr name |] in
     set_atts e [] [] at;
     List.iter (append_child e) cs;
     e
@@ -1314,11 +1317,11 @@ module El = struct
   let at a e =
     Jv.to_option Jv.to_jstr (Jv.call e "getAttribute" [|Jv.of_jstr a|])
 
-  let set_at a v e =
+  let set_at ?ns a v e =
     if Jstr.is_empty a then () else
     match v with
-    | None -> ignore (Jv.call e "removeAttribute" Jv.[|of_jstr a|])
-    | Some v -> ignore (Jv.call e "setAttribute" Jv.[|of_jstr a; of_jstr v|])
+    | None -> ignore (or_ns ?ns e "removeAttribute" Jv.[|of_jstr a|])
+    | Some v -> ignore (or_ns ?ns e "setAttribute" Jv.[|of_jstr a; of_jstr v|])
 
   (* Properties *)
 
@@ -2022,6 +2025,8 @@ module Navigator = struct
     if Jv.is_none t then 0 else Jv.to_int t
 
   let online n = Jv.Bool.get n "onLine"
+
+  let user_agent n = Jv.Jstr.get n "userAgent"
 end
 
 module Performance = struct
@@ -2216,4 +2221,37 @@ module ResizeObserver = struct
     ignore @@ Jv.call observer "disconnect" [| |]
 
   include (Jv.Id : Jv.CONV with type t := observer)
+end
+
+module DOMMatrix = struct
+  type t = Jv.t
+
+  let of_jstr s = Jv.new' (Jv.get Jv.global "DOMMatrix") [| Jv.of_jstr s |]
+
+  let a v = Jv.get v "a" |> Jv.to_float
+  let b v = Jv.get v "b" |> Jv.to_float
+  let c v = Jv.get v "c" |> Jv.to_float
+  let d v = Jv.get v "d" |> Jv.to_float
+  let e v = Jv.get v "e" |> Jv.to_float
+  let f v = Jv.get v "f" |> Jv.to_float
+  let is_2d v = Jv.get v "is2D" |> Jv.to_bool
+  let is_identity v = Jv.get v "isIdentity" |> Jv.to_bool
+  let m11 v = Jv.get v "m11" |> Jv.to_float
+  let m12 v = Jv.get v "m12" |> Jv.to_float
+  let m13 v = Jv.get v "m13" |> Jv.to_float
+  let m14 v = Jv.get v "m14" |> Jv.to_float
+  let m21 v = Jv.get v "m21" |> Jv.to_float
+  let m22 v = Jv.get v "m22" |> Jv.to_float
+  let m23 v = Jv.get v "m23" |> Jv.to_float
+  let m24 v = Jv.get v "m24" |> Jv.to_float
+  let m31 v = Jv.get v "m31" |> Jv.to_float
+  let m32 v = Jv.get v "m32" |> Jv.to_float
+  let m33 v = Jv.get v "m33" |> Jv.to_float
+  let m34 v = Jv.get v "m34" |> Jv.to_float
+  let m41 v = Jv.get v "m41" |> Jv.to_float
+  let m42 v = Jv.get v "m42" |> Jv.to_float
+  let m43 v = Jv.get v "m43" |> Jv.to_float
+  let m44 v = Jv.get v "m44" |> Jv.to_float
+
+  include (Jv.Id : Jv.CONV with type t := t)
 end
